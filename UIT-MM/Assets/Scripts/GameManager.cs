@@ -7,7 +7,6 @@ public class GameManager : MonoBehaviour {
 	public GameObject[] gameOjects;
 	public static GameManager instance = null;
 	public int rows;
-	public int unitPerLine;
 	public float bottom; 
 	public float top;
 	public float velOnEachFrame;
@@ -28,20 +27,24 @@ public class GameManager : MonoBehaviour {
 	private GameObject createNewObject(float x, int y){
 		int type = Random.Range (0, gameOjects.Length);
 		GameObject g = GameObject.Instantiate(gameOjects[type]);
-		g.transform.position = new Vector2 (x, y);
+		g.transform.position = new Vector3 (x, y, -2f);
 		return g;
 	}
 	private float randomX(){
-		return Random.Range (2f, 2.2f);
+		return Random.Range (2f, 3f);
 	}
 	private List<GameObject> createNewRow(int x = 0){
 		List <GameObject> temp = new List<GameObject>();
-		int cols = Random.Range (0, unitPerLine);
-		float before = -width - 0.4f;
-		for (int j = 0; j < cols; j++) {			
-			float random = randomX ();
-			before += random;
+		float random = randomX ();
+		float before = -width + Random.Range(0.5f, 1.5f);
+		while (before <= width - 0.5f) {			
 			temp.Add (createNewObject(before, 2 * x));
+			random = randomX ();
+			before += random;
+
+			int tmp = Random.Range (1, 5);
+			if (tmp == 1)
+				break;
 		}
 		return temp;
 	}
@@ -52,8 +55,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	// Use this for initialization
-	void InstanceNewRow(int x){		
-		int nums = Random.Range (1, unitPerLine);
+	void InstanceNewRow(int x){				
 		int count = Objects [x].Count;
 
 		for (int i = 0; i < count; i++) {
@@ -61,21 +63,29 @@ public class GameManager : MonoBehaviour {
 		}
 		Objects [x].Clear ();
 			
-		float before = -width - 0.4f;
-		for (int i = 0; i < nums; i++) {	
+		int ii = 0;
+		float random = randomX ();
+		float before = -width + Random.Range(0.5f, 1.5f);
+		while (before <= width - 0.5f){
 			int type = Random.Range (0, gameOjects.Length);
 			Objects [x].Add(GameObject.Instantiate (gameOjects[type]));
-			float random = randomX ();
+			Objects [x] [ii].transform.Translate (new Vector3(before, top, -2f));
+			random = randomX ();
 			before += random;
-			Objects [x] [i].transform.Translate (new Vector2(before, top));
+			ii++;
+
+			int tmp = Random.Range (1, 5);
+			if (tmp == 1)
+				break;
 		}
+
 	}
 	// Update is called once per frame
 	void Update () {		
 		for (int i = 0; i < rows; i++) {			
 			bool updated = false;
 			for (int j = 0; j < Objects [i].Count; j++) {
-				Vector2 pos = new Vector2(Objects [i] [j].transform.position.x, Objects[i][j].transform.position.y - velOnEachFrame);										
+				Vector3 pos = new Vector3(Objects [i] [j].transform.position.x, Objects[i][j].transform.position.y - velOnEachFrame, -2f);										
 				if (pos.y <= bottom) {
 					updated = true;
 					break;
